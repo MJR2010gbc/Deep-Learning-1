@@ -11,11 +11,3 @@ ________________________________________________________________________________
 Dataset:
 https://www.kaggle.com/code/raditrahman/prediction-of-hotel-reservation-with-ml-and-dl
 _______________________________________________________________________________________________________
-Authors Include:
-Yigit Sevim
-Murk Asad
-Sertan Avdan
-Ozkan Kara
-A. Gazi Koparal
-Saksham Prakash
-Manasi Rane
