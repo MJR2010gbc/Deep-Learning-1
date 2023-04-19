@@ -4,3 +4,6 @@ matplotlib
 seaborn
 scikit-learn
 tensorflow
+imblearn
+pyyaml 
+h5py
