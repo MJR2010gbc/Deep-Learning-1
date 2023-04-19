@@ -26,8 +26,9 @@ def preprocessData(df):
     cleandf[categorical_cols] = cleandf[categorical_cols].apply(lambda col: le.fit_transform(col))
     one_hot_scaled_df = pd.DataFrame(MinMaxScaler().fit_transform(cleandf), columns=cleandf.columns)
     dataset = one_hot_scaled_df
-    return one_hot_scaled_df
-
+    # return one_hot_scaled_df
+    return cleandf
+@app.route('/train')
 def trainModel():
     df = pd.read_csv(r'C:\Users\nitro\git\Deep-Learning-Hotel-Res\Hotel Reservations.csv')
     df = preprocessData(df)
@@ -68,13 +69,38 @@ def trainModel():
 
 def modelInference(x,path = r'C:\Users\nitro\git\Deep-Learning-Hotel-Res\flask\saved_models\model1'):
     loaded_model = tf.keras.models.load_model(path)
-    y =[0.11963883, 0.32833333, 0.4       , 0.66666667, 0.27272727,
-       1.        , 0.17647059]
+    # y =[0.11963883, 0.32833333, 0.4, 0.66666667, 0.27272727,1., 0.17647059]
     prediction = loaded_model.predict(np.array( [x,] ) )
     print(prediction,prediction.round())
+    return prediction.round()
 
-x = [0.11963883, 0.32833333, 0.4       , 0.66666667, 0.27272727,
-       1.        , 0.17647059]
 # trainModel()
-modelInference(x)
+# x = [5,	106.68,	1,	6,	11,	4,	3]
+# modelInference(x)
 
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/predict')
+def predictForInput():
+    lead_time = float(request.args['lead_time'])	
+    avg_price_per_room = float(request.args['avg_price_per_room'])
+    no_of_special_requests = float(request.args['no_of_special_requests'])	
+    arrival_date    =   float(request.args['arrival_date'])	
+    arrival_month	= float(request.args['arrival_month'])
+    market_segment_type =	float(request.args['market_segment_type'])
+    no_of_week_nights   =   float(request.args['no_of_week_nights'])
+
+    x = [lead_time, avg_price_per_room,no_of_special_requests,arrival_date,arrival_month,market_segment_type,no_of_week_nights]
+    pre = modelInference(x)
+    print(pre[0][0])
+    res =''
+    if int(pre[0][0]==1):
+        res = 'Not Cancel'
+    else :
+        res = 'Cancel'
+    return{ 'Prediction' : res }
+
+# if __name__ == "__main__":
+    # app.run(host='0.0.0.0', port='5000', debug=True)
