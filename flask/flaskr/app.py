@@ -80,17 +80,19 @@ def modelInference(x,path = r'C:\Users\nitro\git\Deep-Learning-Hotel-Res\flask\s
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('reservation.html')
 
-@app.route('/predict')
+@app.route('/predict',  methods=['GET', 'POST'])
 def predictForInput():
-    lead_time = float(request.args['lead_time'])	
-    avg_price_per_room = float(request.args['avg_price_per_room'])
-    no_of_special_requests = float(request.args['no_of_special_requests'])	
-    arrival_date    =   float(request.args['arrival_date'])	
-    arrival_month	= float(request.args['arrival_month'])
-    market_segment_type =	float(request.args['market_segment_type'])
-    no_of_week_nights   =   float(request.args['no_of_week_nights'])
+    lead_time = float(request.form.get("lead_time"))	
+    avg_price_per_room = float(request.form.get('avg_price_per_room'))
+    no_of_special_requests = float(request.form.get('special_requests'))
+    date    =   (request.form.get('checkindate'))	
+    dateArray = date.split('-')
+    arrival_date = float(dateArray[2])
+    arrival_month = float(dateArray[1])
+    market_segment_type =	float(request.form.get('market_segment_type'))
+    no_of_week_nights   =   float(request.form.get('no_of_week_nights'))
 
     x = [lead_time, avg_price_per_room,no_of_special_requests,arrival_date,arrival_month,market_segment_type,no_of_week_nights]
     pre = modelInference(x)
@@ -100,7 +102,7 @@ def predictForInput():
         res = 'Not Cancel'
     else :
         res = 'Cancel'
-    return{ 'Prediction' : res }
+    return render_template('result.html',result = res)
 
 # if __name__ == "__main__":
     # app.run(host='0.0.0.0', port='5000', debug=True)
