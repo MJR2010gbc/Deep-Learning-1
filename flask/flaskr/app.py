@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 global loaded_model
 global dataset
-df = pd.read_csv(r'C:\Users\nitro\git\Deep-Learning-Hotel-Res\clean_data.csv')
+df = pd.read_csv(r'E:\George Brown College Semester 1 2\SEM 2\Full stack\Project\Deep-Learning-1\clean_data.csv')
 
 def preprocessData(df):
     cleandf = df[['lead_time','avg_price_per_room','no_of_special_requests','arrival_date','arrival_month','market_segment_type','no_of_week_nights','booking_status']]
@@ -30,7 +30,7 @@ def preprocessData(df):
     return cleandf
 @app.route('/train')
 def trainModel():
-    df = pd.read_csv(r'C:\Users\nitro\git\Deep-Learning-Hotel-Res\Hotel Reservations.csv')
+    df = pd.read_csv(r'E:\George Brown College Semester 1 2\SEM 2\Full stack\Project\Deep-Learning-1\Hotel Reservations.csv')
     df = preprocessData(df)
     dataset = df
     X = df.drop(['booking_status'], axis=1)
@@ -52,7 +52,7 @@ def trainModel():
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     print(model.summary())
 
-    path_checkpoint = r"C:\Users\nitro\git\Deep-Learning-Hotel-Res\flask\training\cp.ckpt"
+    path_checkpoint = r"E:\George Brown College Semester 1 2\SEM 2\Full stack\Project\Deep-Learning-1\flask\training\cp.ckpt"
     directory_checkpoint = os.path.dirname(path_checkpoint)
 
     callback = tf.keras.callbacks.ModelCheckpoint(filepath=path_checkpoint,
@@ -61,18 +61,18 @@ def trainModel():
 
     history = model.fit(x = X_train, y = y_train, validation_data = (X_val, y_val),  batch_size = 256, epochs = 100, callbacks=[callback])
 
-    model.save(r'C:\Users\nitro\git\Deep-Learning-Hotel-Res\flask\saved_models\model1')
+    model.save(r'E:\George Brown College Semester 1 2\SEM 2\Full stack\Project\Deep-Learning-1\flask\saved_models\model1')
     print('Model Created and Saved')
-    loaded_model = tf.keras.models.load_model(r'C:\Users\nitro\git\Deep-Learning-Hotel-Res\flask\saved_models\model1')
+    loaded_model = tf.keras.models.load_model(r'E:\George Brown College Semester 1 2\SEM 2\Full stack\Project\Deep-Learning-1\flask\saved_models\model1')
     print('Model loaded')
     print(loaded_model.summary())
+    return { 'msg':'Model Trained'}
 
-def modelInference(x,path = r'C:\Users\nitro\git\Deep-Learning-Hotel-Res\flask\saved_models\model1'):
+def modelInference(x,path = r'E:\George Brown College Semester 1 2\SEM 2\Full stack\Project\Deep-Learning-1\flask\saved_models\model1'):
     loaded_model = tf.keras.models.load_model(path)
-    # y =[0.11963883, 0.32833333, 0.4, 0.66666667, 0.27272727,1., 0.17647059]
     prediction = loaded_model.predict(np.array( [x,] ) )
     print(prediction,prediction.round())
-    return prediction.round()
+    return prediction,prediction.round()
 
 # trainModel()
 # x = [5,	106.68,	1,	6,	11,	4,	3]
@@ -95,14 +95,14 @@ def predictForInput():
     no_of_week_nights   =   float(request.form.get('no_of_week_nights'))
 
     x = [lead_time, avg_price_per_room,no_of_special_requests,arrival_date,arrival_month,market_segment_type,no_of_week_nights]
-    pre = modelInference(x)
-    print(pre[0][0])
+    pre,prediction = modelInference(x)
+    print(prediction[0][0])
     res =''
-    if int(pre[0][0]==1):
+    if int(prediction[0][0]==1):
         res = 'Not Cancel'
     else :
         res = 'Cancel'
-    return render_template('result.html',result = res)
+    return render_template('result.html',result = [res,pre[0][0]])
 
 # if __name__ == "__main__":
     # app.run(host='0.0.0.0', port='5000', debug=True)
